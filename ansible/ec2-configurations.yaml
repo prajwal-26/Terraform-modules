@@ -1,0 +1,26 @@
+- name: Configuring the Web Server.
+  hosts: ec2_servers
+  become: true
+  tasks:
+
+    - name: update the Server
+      apt:
+        update_cache: yes
+
+    - name: install nginx
+      apt: 
+        name: nginx
+        state: present
+
+    - name : start nginx
+      service:
+        name: nginx
+        state: started
+        enabled: true
+
+
+    - name: install java
+      apt:
+        name: openjdk-21-jre-headless
+        state: present
+

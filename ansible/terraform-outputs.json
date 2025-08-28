@@ -1,0 +1,16 @@
+{
+  "ec2_details": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "private-ip": "string",
+        "pubic_ip": "string"
+      }
+    ],
+    "value": {
+      "private-ip": "172.31.94.200",
+      "pubic_ip": "18.233.159.142"
+    }
+  }
+}
