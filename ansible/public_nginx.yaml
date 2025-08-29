@@ -1,0 +1,37 @@
+- name: Configure Nginx on public server
+  hosts: public
+  become: true
+  vars:
+    private_ip: "{{ hostvars['private'][0]['ansible_host'] }}"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy Nginx configuration from template
+      template:
+        src: templates/webapp.j2
+        dest: /etc/nginx/sites-available/webapp
+        mode: '0644'
+
+    - name: Enable Nginx site
+      file:
+        src: /etc/nginx/sites-available/webapp
+        dest: /etc/nginx/sites-enabled/webapp
+        state: link
+
+    - name: Remove default Nginx site (optional)
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

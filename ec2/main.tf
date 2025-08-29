@@ -15,6 +15,7 @@ resource "aws_subnet" "private_subnet" {
 resource "aws_subnet" "public_subnet" {
   vpc_id = aws_vpc.my_vpc.id
   cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = true 
 }
 
 resource "aws_internet_gateway" "vpc_internet_gateway" {
@@ -69,13 +70,32 @@ resource "aws_security_group" "security_group_inbound" {
   }
 }
 
-resource "aws_instance" "public_server" {
-  ami = "ami-0360c520857e3138f"
-  instance_type = "t2.micro"
-  key_name = "test"
-  subnet_id = aws_subnet.public_subnet.id
-  vpc_security_group_ids = [aws_security_group.security_group_inbound.id]
+resource "aws_security_group" "inbound_private" {
+   description = "Allow inbound Traffic private"
+  vpc_id = aws_vpc.my_vpc.id
+   ingress {
+    description = "ssh inbound traffic from VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    security_groups = [aws_security_group.security_group_inbound.id]
+  }
+  ingress {
+  description = "Node.js app from public EC2"
+  from_port   = 3000
+  to_port     = 3000
+  protocol    = "tcp"
+  security_groups = [aws_security_group.security_group_inbound.id]
 }
+
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_eip" "elastic_ip_nat" {
   domain = "vpc"
 }
@@ -95,25 +115,26 @@ resource "aws_route_table_association" "route_private" {
 
 resource "aws_nat_gateway" "nat-gateway" {
   subnet_id = aws_subnet.public_subnet.id
-  allocation_id = aws_eip.elastic_ip_nat.id
+  allocation_id = aws_eip.elastic_ip_nat.allocation_id
+}
+
+resource "aws_instance" "public_server" {
+  ami = var.ec2_instance_public.ami
+  instance_type = var.ec2_instance_public.instance_type
+  key_name = var.ec2_instance_public.key_name
+  subnet_id = aws_subnet.public_subnet.id
+  vpc_security_group_ids = [aws_security_group.security_group_inbound.id]
+  associate_public_ip_address = true
 }
 
 resource "aws_instance" "ec2" {
-  ami = "ami-0360c520857e3138f"
-  instance_type = "t2.micro"
-  key_name = "test"
+  ami = var.ec2_instance_private.ami
+  instance_type = var.ec2_instance_private.instance_type
+  key_name = var.ec2_instance_private.key_name
   subnet_id = aws_subnet.private_subnet.id
-  vpc_security_group_ids = [aws_security_group.security_group_inbound.id]
+  vpc_security_group_ids = [aws_security_group.inbound_private.id]
 }
 
 
 
-# resource "aws_instance" "ec2" {
-#     ami = var.ec2_instance.ami
-#   instance_type = var.ec2_instance.instance_type
-#   key_name = var.ec2_instance.key_name
-#    tags = {
-#         Name = "ec2-instance"
-#    }
-   
-# }
+

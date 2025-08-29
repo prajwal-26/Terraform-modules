@@ -3,7 +3,7 @@ variable "aws" {
   default = "us-east-1"
 }
 
-variable "ec2_instance" {
+variable "ec2_instance_private" {
   description = "instance image and size"
   default = {
     ami = "ami-0360c520857e3138f"
@@ -11,3 +11,14 @@ variable "ec2_instance" {
     key_name = "test"
   } 
 }
+variable "ec2_instance_public" {
+  description = "instance image and size"
+  default = {
+    ami = "ami-0360c520857e3138f"
+    instance_type = "t2.micro"
+    key_name = "test"
+  } 
+}
+
+
+

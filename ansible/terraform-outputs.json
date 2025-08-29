@@ -4,13 +4,17 @@
     "type": [
       "object",
       {
-        "private-ip": "string",
-        "pubic_ip": "string"
+        "private_instance_private_ip": "string",
+        "private_instance_pubic_ip": "string",
+        "public_private_ip": "string",
+        "public_pubic_ip": "string"
       }
     ],
     "value": {
-      "private-ip": "172.31.94.200",
-      "pubic_ip": "18.233.159.142"
+      "private_instance_private_ip": "10.0.0.90",
+      "private_instance_pubic_ip": "",
+      "public_private_ip": "10.0.1.87",
+      "public_pubic_ip": "13.220.0.67"
     }
   }
 }
